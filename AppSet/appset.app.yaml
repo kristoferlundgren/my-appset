@@ -1,0 +1,10 @@
+# Copy this file to your Apps/AppSet/ directory and update the
+# repoURL and targetRevision fields to point to the AppSet repository.
+metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "-500"
+spec:
+  source:
+    repoURL: <this repo>
+    targetRevision: <git ref>
+    path: AppSet

@@ -1,0 +1,182 @@
+--- # <- Keep YAML delimiter
+# See this doc to understand the '{{`{{ [...] }}`}}' syntax:
+# - <https://kyverno.io/docs/policy-types/cluster-policy/variables/#variables-in-helm>
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+# https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
+metadata:
+  namespace: {{ .Values.appset.namespace }}
+  name: appset.{{ .Values.appset.name }}
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    # https://argo-cd.readthedocs.io/en/latest/operator-manual/applicationset/Generators-Git/
+    - git:
+        repoURL: {{ .Values.appset.repoURL }}
+        revision: {{ .Values.appset.revision }}
+        requeueAfterSeconds: 60 # Pull repo every x seconds
+        files:
+          # TODO: Enable improved globbing
+          # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git-File-Globbing/#enabling-the-new-globbing
+          - path: {{ .Values.appset.path }}/*/app.yaml # Deploy all apps
+          - path: {{ .Values.appset.path }}/*/*.app.yaml # Support multiple app.yaml files per app.
+          - path: {{ .Values.appset.path }}/app.template/* # Exclude app.template
+            exclude: true
+
+        # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/#pass-additional-key-value-pairs-via-values-field
+        values:
+          applicationProject: {{ .Values.appset.applicationProject }}
+          clusterURL: https://kubernetes.default.svc
+          repoURL: {{ .Values.appset.repoURL }}
+          targetRevision: {{ .Values.appset.revision }}
+          namespace: {{ .Values.appset.namespace }}
+  ignoreApplicationDifferences:
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
+    - jsonPointers:
+        - /spec/syncPolicy
+  syncPolicy:
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#managed-applications-modification-policies
+    applicationsSync: sync # create-only, create-update, create-delete, sync (default)
+  template:
+    metadata:
+      annotations:
+        argocd.argoproj.io/compare-options: ServerSideDiff=true,IncludeMutationWebhook=true,IgnoreExtraneous
+        argocd.argoproj.io/sync-wave: "0"
+        basenameNormalized: '{{`{{.path.basenameNormalized}}`}}'
+        basename: '{{`{{.path.basename}}`}}'
+      finalizers:
+        # https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer
+        - resources-finalizer.argocd.argoproj.io
+      name: '{{`{{.values.namespace}}`}}.{{`{{.path.basenameNormalized | lower}}`}}'
+    spec:
+      # --- DEFAULTS ---
+      project: '{{`{{.values.applicationProject}}`}}'
+      syncPolicy:
+        automated:
+          enabled: true
+          prune: true
+          selfHeal: true
+          allowEmpty: true
+        syncOptions:
+          - CreateNamespace=false
+          - ServerSideApply=true
+      destination:
+        namespace: '{{`{{.path.basenameNormalized}}`}}'
+        server: '{{`{{.values.clusterURL}}`}}'
+      source:
+        repoURL: '{{`{{.values.repoURL}}`}}'
+        targetRevision: '{{`{{.values.targetRevision}}`}}'
+        path: '{{`{{.path.path}}`}}'
+        helm:
+          releaseName: '{{`{{.path.basenameNormalized}}`}}'
+          valueFiles:
+            - 'values.yaml'
+          ignoreMissingValueFiles: true
+  # --- OVERRIDES ---
+  # Application overrides from the app.yaml files in Git repo:
+  # Zero overrides is still valid, and will use the template values.
+  # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Template/#template-patch
+  # https://argo-cd.readthedocs.io/en/stable/user-guide/application-specification/
+  templatePatch: |
+    metadata:
+      annotations:
+        # argocd.argoproj.io/sync-wave
+        '{{`{{- if hasKey .metadata.annotations "argocd.argoproj.io/sync-wave" }}`}}'
+        argocd.argoproj.io/sync-wave: '{{`{{ .metadata.annotations["argocd.argoproj.io/sync-wave"] | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+      # finalizers
+      '{{`{{- if hasKey .metadata "finalizers" }}`}}'
+      finalizers: '{{`{{ .metadata.finalizers | quote }}`}}'
+      '{{`{{- end }}`}}'
+
+    spec:
+      source:
+        # repoURL
+        '{{`{{- if hasKey .spec.source "repoURL" }}`}}'
+        repoURL: '{{`{{ .spec.source.repoURL | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # targetRevision
+        '{{`{{- if hasKey .spec.source "targetRevision" }}`}}'
+        targetRevision: '{{`{{ .spec.source.targetRevision | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # path
+        '{{`{{- if hasKey .spec.source "path" }}`}}'
+        path: '{{`{{ .spec.source.path | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # chart
+        '{{`{{- if hasKey .spec.source "chart" }}`}}'
+        chart: '{{`{{ .spec.source.chart | quote }}`}}'
+        path: null
+        '{{`{{- end }}`}}'
+
+        # helm
+        '{{`{{- if hasKey .spec.source "helm" }}`}}'
+        helm: '{{`{{ .spec.source.helm | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # kustomize
+        '{{`{{- if hasKey .spec.source "kustomize" }}`}}'
+        kustomize: '{{`{{ .spec.source.kustomize | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # directory
+        '{{`{{- if hasKey .spec.source "directory" }}`}}'
+        directory: '{{`{{ .spec.source.directory | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # plugin
+        '{{`{{- if hasKey .spec.source "plugin" }}`}}'
+        plugin: '{{`{{ .spec.source.plugin | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+      # sources
+      '{{`{{- if hasKey .spec.source "sources" }}`}}'
+      sources: '{{`{{ .spec.source.sources | quote }}`}}'
+      '{{`{{- end }}`}}'
+
+      destination:
+        # namespace
+        '{{`{{- if hasKey .spec.destination "namespace" }}`}}'
+        namespace: '{{`{{ .spec.destination.namespace | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # server
+        '{{`{{- if hasKey .spec.destination "server" }}`}}'
+        server: '{{`{{ .spec.destination.server | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+      # info
+      '{{`{{- if hasKey .spec "info" }}`}}'
+      info: '{{`{{ .spec.info | quote }}`}}'
+      '{{`{{- end }}`}}'
+
+      syncPolicy:
+        # automated
+        '{{`{{- if hasKey .spec.syncPolicy "automated" }}`}}'
+        automated: '{{`{{ .spec.syncPolicy.automated | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+        # syncOptions
+        '{{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}'
+        syncOptions: '{{`{{ .spec.syncPolicy.syncOptions | quote }}`}}'
+        '{{`{{- end }}`}}'
+
+      # syncPolicy
+      '{{`{{- if hasKey .spec "syncPolicy" }}`}}'
+      syncPolicy: '{{`{{ .spec.syncPolicy | quote }}`}}'
+      '{{`{{- end }}`}}'
+
+      # ignoreDifferences
+      '{{`{{- if hasKey .spec "ignoreDifferences" }}`}}'
+      ignoreDifferences: '{{`{{ .spec.ignoreDifferences | quote }}`}}'
+      '{{`{{- end }}`}}'
+
+      # sourceHydrator
+      '{{`{{- if hasKey .spec "sourceHydrator" }}`}}'
+      sourceHydrator: '{{`{{ .spec.sourceHydrator | quote }}`}}'
+      '{{`{{- end }}`}}'
