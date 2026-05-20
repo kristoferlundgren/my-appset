@@ -5,32 +5,32 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
 metadata:
-  namespace: {{ .Values.appset.namespace }}
-  name: appset.{{ .Values.appset.name }}
+  namespace: {{ .Values.namespace }}
+  name: appset.{{ .Values.name }}
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
     # https://argo-cd.readthedocs.io/en/latest/operator-manual/applicationset/Generators-Git/
     - git:
-        repoURL: {{ .Values.appset.repoURL }}
-        revision: {{ .Values.appset.revision }}
+        repoURL: {{ .Values.repoURL }}
+        revision: {{ .Values.revision }}
         requeueAfterSeconds: 60 # Pull repo every x seconds
         files:
-          # TODO: Enable improved globbing
+          # NOTE: Do enable ArgoCD improved globbing
           # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git-File-Globbing/#enabling-the-new-globbing
-          - path: {{ .Values.appset.path }}/*/app.yaml # Deploy all apps
-          - path: {{ .Values.appset.path }}/*/*.app.yaml # Support multiple app.yaml files per app.
-          - path: {{ .Values.appset.path }}/app.template/* # Exclude app.template
+          - path: {{ .Values.path }}/*/app.yaml # Deploy all apps
+          - path: {{ .Values.path }}/*/*.app.yaml # Support multiple app.yaml files per app.
+          - path: {{ .Values.path }}/app.template/* # Exclude app.template
             exclude: true
 
         # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/#pass-additional-key-value-pairs-via-values-field
         values:
-          applicationProject: {{ .Values.appset.applicationProject }}
+          applicationProject: {{ .Values.applicationProject }}
           clusterURL: https://kubernetes.default.svc
-          repoURL: {{ .Values.appset.repoURL }}
-          targetRevision: {{ .Values.appset.revision }}
-          namespace: {{ .Values.appset.namespace }}
+          repoURL: {{ .Values.repoURL }}
+          targetRevision: {{ .Values.revision }}
+          namespace: {{ .Values.namespace }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:
@@ -75,7 +75,7 @@ spec:
           ignoreMissingValueFiles: true
   # --- OVERRIDES ---
   # Application overrides from the app.yaml files in Git repo:
-  # Zero overrides is still valid, and will use the template values.
+  # Zero overrides is still a valid YAML file, and will use the template values above.
   # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Template/#template-patch
   # https://argo-cd.readthedocs.io/en/stable/user-guide/application-specification/
   templatePatch: |
