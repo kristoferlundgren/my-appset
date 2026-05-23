@@ -79,19 +79,25 @@ spec:
   # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Template/#template-patch
   # https://argo-cd.readthedocs.io/en/stable/user-guide/application-specification/
   templatePatch: |
+    '{{`{{- if hasKey . "metadata" }}`}}'
     metadata:
+      '{{`{{- if hasKey .metadata "annotations" }}`}}'
       annotations:
         # argocd.argoproj.io/sync-wave
         '{{`{{- if hasKey .metadata.annotations "argocd.argoproj.io/sync-wave" }}`}}'
         argocd.argoproj.io/sync-wave: '{{`{{ index .metadata.annotations "argocd.argoproj.io/sync-wave" | quote }}`}}'
         '{{`{{- end }}`}}'
+      '{{`{{- end }}`}}'
 
       # finalizers
       '{{`{{- if hasKey .metadata "finalizers" }}`}}'
       finalizers: '{{`{{ .metadata.finalizers | quote }}`}}'
       '{{`{{- end }}`}}'
+    '{{`{{- end }}`}}'
 
+    '{{`{{- if hasKey . "spec" }}`}}'
     spec:
+      '{{`{{- if hasKey .spec "source" }}`}}'
       source:
         # repoURL
         '{{`{{- if hasKey .spec.source "repoURL" }}`}}'
@@ -138,7 +144,9 @@ spec:
       '{{`{{- if hasKey .spec.source "sources" }}`}}'
       sources: '{{`{{ .spec.source.sources | quote }}`}}'
       '{{`{{- end }}`}}'
+      '{{`{{- end }}`}}'
 
+      '{{`{{- if hasKey .spec "destination" }}`}}'
       destination:
         # namespace
         '{{`{{- if hasKey .spec.destination "namespace" }}`}}'
@@ -149,12 +157,14 @@ spec:
         '{{`{{- if hasKey .spec.destination "server" }}`}}'
         server: '{{`{{ .spec.destination.server | quote }}`}}'
         '{{`{{- end }}`}}'
+      '{{`{{- end }}`}}'
 
       # info
       '{{`{{- if hasKey .spec "info" }}`}}'
       info: '{{`{{ .spec.info | quote }}`}}'
       '{{`{{- end }}`}}'
 
+      '{{`{{- if hasKey .spec "syncPolicy" }}`}}'
       syncPolicy:
         # automated
         '{{`{{- if hasKey .spec.syncPolicy "automated" }}`}}'
@@ -165,6 +175,7 @@ spec:
         '{{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}'
         syncOptions: '{{`{{ .spec.syncPolicy.syncOptions | quote }}`}}'
         '{{`{{- end }}`}}'
+      '{{`{{- end }}`}}'
 
       # syncPolicy
       '{{`{{- if hasKey .spec "syncPolicy" }}`}}'
@@ -180,3 +191,4 @@ spec:
       '{{`{{- if hasKey .spec "sourceHydrator" }}`}}'
       sourceHydrator: '{{`{{ .spec.sourceHydrator | quote }}`}}'
       '{{`{{- end }}`}}'
+    '{{`{{- end }}`}}'
