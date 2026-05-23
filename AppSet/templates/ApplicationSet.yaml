@@ -59,7 +59,7 @@ spec:
           selfHeal: true
           allowEmpty: true
         syncOptions:
-          - CreateNamespace=false
+          - CreateNamespace=true
           - ServerSideApply=true
       destination:
         namespace: '{{`{{.path.basenameNormalized}}`}}'
@@ -175,6 +175,16 @@ spec:
         # syncOptions
         {{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}
         syncOptions: '{{`{{ .spec.syncPolicy.syncOptions | quote }}`}}'
+        {{`{{- end }}`}}
+
+        # managedNamespaceMetadata
+        {{`{{- if hasKey .spec.syncPolicy "managedNamespaceMetadata" }}`}}
+        managedNamespaceMetadata: '{{`{{ .spec.syncPolicy.managedNamespaceMetadata | quote }}`}}'
+        {{`{{- end }}`}}
+
+        # retry
+        {{`{{- if hasKey .spec.syncPolicy "retry" }}`}}
+        retry: '{{`{{ .spec.syncPolicy.retry | quote }}`}}'
         {{`{{- end }}`}}
       {{`{{- end }}`}}
 
