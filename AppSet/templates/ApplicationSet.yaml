@@ -79,116 +79,120 @@ spec:
   # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Template/#template-patch
   # https://argo-cd.readthedocs.io/en/stable/user-guide/application-specification/
   templatePatch: |
-    '{{`{{- if hasKey . "metadata" }}`}}'
+    {{`{{- if or (hasKey . "metadata") (hasKey . "spec") }}`}}
+    {{`{{- if hasKey . "metadata" }}`}}
     metadata:
-      '{{`{{- if hasKey .metadata "annotations" }}`}}'
+      {{`{{- if hasKey .metadata "annotations" }}`}}
       annotations:
         # argocd.argoproj.io/sync-wave
-        '{{`{{- if hasKey .metadata.annotations "argocd.argoproj.io/sync-wave" }}`}}'
+        {{`{{- if hasKey .metadata.annotations "argocd.argoproj.io/sync-wave" }}`}}
         argocd.argoproj.io/sync-wave: '{{`{{ index .metadata.annotations "argocd.argoproj.io/sync-wave" | quote }}`}}'
-        '{{`{{- end }}`}}'
-      '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
+      {{`{{- end }}`}}
 
       # finalizers
-      '{{`{{- if hasKey .metadata "finalizers" }}`}}'
+      {{`{{- if hasKey .metadata "finalizers" }}`}}
       finalizers: '{{`{{ .metadata.finalizers | quote }}`}}'
-      '{{`{{- end }}`}}'
-    '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
+    {{`{{- end }}`}}
 
-    '{{`{{- if hasKey . "spec" }}`}}'
+    {{`{{- if hasKey . "spec" }}`}}
     spec:
-      '{{`{{- if hasKey .spec "source" }}`}}'
+      {{`{{- if hasKey .spec "source" }}`}}
       source:
         # repoURL
-        '{{`{{- if hasKey .spec.source "repoURL" }}`}}'
+        {{`{{- if hasKey .spec.source "repoURL" }}`}}
         repoURL: '{{`{{ .spec.source.repoURL | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # targetRevision
-        '{{`{{- if hasKey .spec.source "targetRevision" }}`}}'
+        {{`{{- if hasKey .spec.source "targetRevision" }}`}}
         targetRevision: '{{`{{ .spec.source.targetRevision | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # path
-        '{{`{{- if hasKey .spec.source "path" }}`}}'
+        {{`{{- if hasKey .spec.source "path" }}`}}
         path: '{{`{{ .spec.source.path | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # chart
-        '{{`{{- if hasKey .spec.source "chart" }}`}}'
+        {{`{{- if hasKey .spec.source "chart" }}`}}
         chart: '{{`{{ .spec.source.chart | quote }}`}}'
         path: null
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # helm
-        '{{`{{- if hasKey .spec.source "helm" }}`}}'
+        {{`{{- if hasKey .spec.source "helm" }}`}}
         helm: '{{`{{ .spec.source.helm | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # kustomize
-        '{{`{{- if hasKey .spec.source "kustomize" }}`}}'
+        {{`{{- if hasKey .spec.source "kustomize" }}`}}
         kustomize: '{{`{{ .spec.source.kustomize | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # directory
-        '{{`{{- if hasKey .spec.source "directory" }}`}}'
+        {{`{{- if hasKey .spec.source "directory" }}`}}
         directory: '{{`{{ .spec.source.directory | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # plugin
-        '{{`{{- if hasKey .spec.source "plugin" }}`}}'
+        {{`{{- if hasKey .spec.source "plugin" }}`}}
         plugin: '{{`{{ .spec.source.plugin | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
       # sources
-      '{{`{{- if hasKey .spec.source "sources" }}`}}'
+      {{`{{- if hasKey .spec.source "sources" }}`}}
       sources: '{{`{{ .spec.source.sources | quote }}`}}'
-      '{{`{{- end }}`}}'
-      '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
+      {{`{{- end }}`}}
 
-      '{{`{{- if hasKey .spec "destination" }}`}}'
+      {{`{{- if hasKey .spec "destination" }}`}}
       destination:
         # namespace
-        '{{`{{- if hasKey .spec.destination "namespace" }}`}}'
+        {{`{{- if hasKey .spec.destination "namespace" }}`}}
         namespace: '{{`{{ .spec.destination.namespace | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # server
-        '{{`{{- if hasKey .spec.destination "server" }}`}}'
+        {{`{{- if hasKey .spec.destination "server" }}`}}
         server: '{{`{{ .spec.destination.server | quote }}`}}'
-        '{{`{{- end }}`}}'
-      '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
+      {{`{{- end }}`}}
 
       # info
-      '{{`{{- if hasKey .spec "info" }}`}}'
+      {{`{{- if hasKey .spec "info" }}`}}
       info: '{{`{{ .spec.info | quote }}`}}'
-      '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
 
-      '{{`{{- if hasKey .spec "syncPolicy" }}`}}'
+      {{`{{- if hasKey .spec "syncPolicy" }}`}}
       syncPolicy:
         # automated
-        '{{`{{- if hasKey .spec.syncPolicy "automated" }}`}}'
+        {{`{{- if hasKey .spec.syncPolicy "automated" }}`}}
         automated: '{{`{{ .spec.syncPolicy.automated | quote }}`}}'
-        '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
 
         # syncOptions
-        '{{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}'
+        {{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}
         syncOptions: '{{`{{ .spec.syncPolicy.syncOptions | quote }}`}}'
-        '{{`{{- end }}`}}'
-      '{{`{{- end }}`}}'
+        {{`{{- end }}`}}
+      {{`{{- end }}`}}
 
       # syncPolicy
-      '{{`{{- if hasKey .spec "syncPolicy" }}`}}'
+      {{`{{- if hasKey .spec "syncPolicy" }}`}}
       syncPolicy: '{{`{{ .spec.syncPolicy | quote }}`}}'
-      '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
 
       # ignoreDifferences
-      '{{`{{- if hasKey .spec "ignoreDifferences" }}`}}'
+      {{`{{- if hasKey .spec "ignoreDifferences" }}`}}
       ignoreDifferences: '{{`{{ .spec.ignoreDifferences | quote }}`}}'
-      '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
 
       # sourceHydrator
-      '{{`{{- if hasKey .spec "sourceHydrator" }}`}}'
+      {{`{{- if hasKey .spec "sourceHydrator" }}`}}
       sourceHydrator: '{{`{{ .spec.sourceHydrator | quote }}`}}'
-      '{{`{{- end }}`}}'
-    '{{`{{- end }}`}}'
+      {{`{{- end }}`}}
+    {{`{{- end }}`}}
+    {{`{{- else }}`}}
+    {}
+    {{`{{- end }}`}}
