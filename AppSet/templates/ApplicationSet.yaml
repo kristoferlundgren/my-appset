@@ -73,7 +73,7 @@ spec:
           valueFiles:
             # Resolves to the values.yaml file sitting next to the discovered app.yaml
             - '/{{`{{.path.path}}`}}/values.yaml'
-          ignoreMissingValueFiles: true
+          # ignoreMissingValueFiles: true # TODO: Re-enable (debugging)
   # --- OVERRIDES ---
   # Application overrides from the app.yaml files in Git repo:
   # Zero overrides is still a valid YAML file, and will use the template values above.
