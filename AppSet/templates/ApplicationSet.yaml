@@ -51,7 +51,7 @@ spec:
       name: '{{`{{.values.namespace}}`}}.{{`{{.path.basenameNormalized | lower}}`}}'
     spec:
       # --- DEFAULTS ---
-      project: '{{`{{.values.applicationProject}}`}}'
+      project: '{{`{{.values.applicationProject}}`}}' # TODO: Redundant project config?
       syncPolicy:
         automated:
           enabled: true
