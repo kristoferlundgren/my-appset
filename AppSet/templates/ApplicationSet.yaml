@@ -71,7 +71,7 @@ spec:
         helm:
           releaseName: '{{`{{.path.basenameNormalized}}`}}'
           valueFiles:
-            - 'values.yaml'
+            - '{{`{{.values.repoURL}}`}}'/'{{`{{.path.path}}`}}'/values.yaml
           ignoreMissingValueFiles: true
   # --- OVERRIDES ---
   # Application overrides from the app.yaml files in Git repo:
