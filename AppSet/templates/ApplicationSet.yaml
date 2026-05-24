@@ -72,7 +72,7 @@ spec:
           releaseName: '{{`{{.path.basenameNormalized}}`}}'
           valueFiles:
             # Resolves to the values.yaml file sitting next to the discovered app.yaml
-            - '{{`{{.path.path}}`}}/values.yaml'
+            - '/{{`{{.path.path}}`}}/values.yaml'
           ignoreMissingValueFiles: true
   # --- OVERRIDES ---
   # Application overrides from the app.yaml files in Git repo:
