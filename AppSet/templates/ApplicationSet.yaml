@@ -86,7 +86,7 @@ spec:
       annotations:
         # argocd.argoproj.io/sync-wave
         {{`{{- if hasKey .metadata.annotations "argocd.argoproj.io/sync-wave" }}`}}
-        argocd.argoproj.io/sync-wave: '{{`{{ index .metadata.annotations "argocd.argoproj.io/sync-wave" | quote }}`}}'
+        argocd.argoproj.io/sync-wave: {{`{{ index .metadata.annotations "argocd.argoproj.io/sync-wave" | quote }}`}}
         {{`{{- end }}`}}
       {{`{{- end }}`}}
 
@@ -102,22 +102,22 @@ spec:
       source:
         # repoURL
         {{`{{- if hasKey .spec.source "repoURL" }}`}}
-        repoURL: '{{`{{ .spec.source.repoURL | quote }}`}}'
+        repoURL: {{`{{ .spec.source.repoURL | quote }}`}}
         {{`{{- end }}`}}
 
         # targetRevision
         {{`{{- if hasKey .spec.source "targetRevision" }}`}}
-        targetRevision: '{{`{{ .spec.source.targetRevision | quote }}`}}'
+        targetRevision: {{`{{ .spec.source.targetRevision | quote }}`}}
         {{`{{- end }}`}}
 
         # path
         {{`{{- if hasKey .spec.source "path" }}`}}
-        path: '{{`{{ .spec.source.path | quote }}`}}'
+        path: {{`{{ .spec.source.path | quote }}`}}
         {{`{{- end }}`}}
 
         # chart
         {{`{{- if hasKey .spec.source "chart" }}`}}
-        chart: '{{`{{ .spec.source.chart | quote }}`}}'
+        chart: {{`{{ .spec.source.chart | quote }}`}}
         path: null
         {{`{{- end }}`}}
 
@@ -151,12 +151,12 @@ spec:
       destination:
         # namespace
         {{`{{- if hasKey .spec.destination "namespace" }}`}}
-        namespace: '{{`{{ .spec.destination.namespace | quote }}`}}'
+        namespace: {{`{{ .spec.destination.namespace | quote }}`}}
         {{`{{- end }}`}}
 
         # server
         {{`{{- if hasKey .spec.destination "server" }}`}}
-        server: '{{`{{ .spec.destination.server | quote }}`}}'
+        server: {{`{{ .spec.destination.server | quote }}`}}
         {{`{{- end }}`}}
       {{`{{- end }}`}}
 
