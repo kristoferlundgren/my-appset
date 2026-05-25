@@ -25,4 +25,4 @@ The directory content will be deployed by an ArgoCD Application, managed by the 
 
 Please consider deploying the ApplicationSet itself as an Application managed by the ApplicationSet.
 This allows the ApplicationSet to be managed using GitOps principles.
-The file `appset.app.yaml` suggests an app to do this exact thing.
+The file `/examples/Apps/AppSet/app.yaml` suggests an app to do this exact thing.

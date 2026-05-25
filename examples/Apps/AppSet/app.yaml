@@ -1,5 +1,6 @@
+# Self-deployment of the ApplicationSet controller.
 # Copy this file to your Apps/AppSet/ directory and update the
-# repoURL and targetRevision fields to point to the AppSet repository.
+# repoURL and targetRevision fields to point to the AppSet Git repository.
 metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "-500" # Create early, delete late

@@ -1,0 +1,10 @@
+spec:
+  source:
+    chart: <chart-name>
+    repoURL: <chart-repo-url>
+    targetRevision: <chart-version>
+    helm:
+      releaseName: <release-name>
+      valuesObject:
+        <custom-values-key>: <custom-values-value>
+        #[...]
