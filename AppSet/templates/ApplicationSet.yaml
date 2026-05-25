@@ -143,10 +143,12 @@ spec:
         plugin: '{{`{{ .spec.source.plugin | quote }}`}}'
         {{`{{- end }}`}}
 
-      # sources
-      {{`{{- if hasKey .spec.source "sources" }}`}}
-      sources: '{{`{{ .spec.source.sources | quote }}`}}'
       {{`{{- end }}`}}
+
+      # sources
+      {{`{{- if hasKey .spec "sources" }}`}}
+      source: null
+      sources: {{`{{ .spec.sources | toJson }}`}}
       {{`{{- end }}`}}
 
       {{`{{- if hasKey .spec "destination" }}`}}
