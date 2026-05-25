@@ -100,52 +100,17 @@ spec:
 
     {{`{{- if hasKey . "spec" }}`}}
     spec:
-      {{`{{- if hasKey .spec "source" }}`}}
-      source:
-        # repoURL
-        {{`{{- if hasKey .spec.source "repoURL" }}`}}
-        repoURL: {{`{{ .spec.source.repoURL | quote }}`}}
-        {{`{{- end }}`}}
-
-        # targetRevision
-        {{`{{- if hasKey .spec.source "targetRevision" }}`}}
-        targetRevision: {{`{{ .spec.source.targetRevision | quote }}`}}
-        {{`{{- end }}`}}
-
-        # path
-        {{`{{- if hasKey .spec.source "path" }}`}}
-        path: {{`{{ .spec.source.path | quote }}`}}
-        {{`{{- end }}`}}
-
-        # chart
-        {{`{{- if hasKey .spec.source "chart" }}`}}
-        chart: {{`{{ .spec.source.chart | quote }}`}}
-        path: null
-        {{`{{- end }}`}}
-
-        # helm
-        {{`{{- if hasKey .spec.source "helm" }}`}}
-        helm: '{{`{{ .spec.source.helm | quote }}`}}'
-        {{`{{- end }}`}}
-
-        # kustomize
-        {{`{{- if hasKey .spec.source "kustomize" }}`}}
-        kustomize: '{{`{{ .spec.source.kustomize | quote }}`}}'
-        {{`{{- end }}`}}
-
-        # directory
-        {{`{{- if hasKey .spec.source "directory" }}`}}
-        directory: '{{`{{ .spec.source.directory | quote }}`}}'
-        {{`{{- end }}`}}
-
-        # plugin
-        {{`{{- if hasKey .spec.source "plugin" }}`}}
-        plugin: '{{`{{ .spec.source.plugin | quote }}`}}'
-        {{`{{- end }}`}}
-
+      # Render source as one object so nested config such as helm.valuesObject stays structured.
+      {{`{{- if and (hasKey .spec "source") (kindIs "map" .spec.source) }}`}}
+      # Helm chart sources must not keep the default Git path from the base template.
+      {{`{{- if hasKey .spec.source "chart" }}`}}
+      {{`{{- $_ := set .spec.source "path" nil }}`}}
+      {{`{{- end }}`}}
+      source: {{`{{ .spec.source | toJson }}`}}
       {{`{{- end }}`}}
 
       # sources
+      # Multi-source apps are required for $values/... Helm value files from a Git repo.
       {{`{{- if hasKey .spec "sources" }}`}}
       source: null
       sources: {{`{{ .spec.sources | toJson }}`}}
