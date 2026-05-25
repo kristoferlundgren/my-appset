@@ -2,22 +2,18 @@
 
 Deploy this ApplicationSet and configure these values:
 
-```yaml
-appset:
-  applicationProject: <ArgoCD AppProject>
-  namespace: <ApplicationSet namespace>
-  path: <Git path>
-  repoURL: <Git repo URL>
-  revision: <Git branch/tag>
-```
+## Installation
 
-Place app.yaml files where you deploy your Helm charts or Kustomization:
+Please see script `bootstrap.sh`.
 
-  <appset.repoURL>/<appset.path>/my-app/app.yaml (empty file)
+## Usage
 
-Put the appropriate code in this directory:
+The ApplicationSet uses the Git generator to find `app.yaml` files.
+Each `app.yaml` then generates an ArgoCD Applcation CR.
 
-- `<Git-repo>/Apps/my-app/`.
+Place `app.yaml` files where you deploy your Helm charts or Kustomizations:
+
+`<Git-repo>/Apps/<app-name>/app.yaml` (empty file)
 
 The directory content will be deployed by an ArgoCD Application, managed by the ArgoCD ApplicationSet.
 
