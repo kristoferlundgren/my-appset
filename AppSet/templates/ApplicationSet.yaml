@@ -70,11 +70,6 @@ spec:
         path: '{{`{{.path.path}}`}}'
         helm:
           releaseName: '{{`{{.path.basenameNormalized}}`}}'
-          valueFiles:
-            # https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/#helm-value-files-from-external-git-repository
-            # Resolves to the values.yaml file sitting next to the discovered app.yaml
-            - '$values/{{`{{.path.path}}`}}/values.yaml'
-          # ignoreMissingValueFiles: true # TODO: Re-enable (debugging)
   # --- OVERRIDES ---
   # Application overrides from the app.yaml files in Git repo:
   # Zero overrides is still a valid YAML file, and will use the template values above.
