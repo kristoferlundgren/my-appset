@@ -1,7 +1,10 @@
-# Default values for AppSet. Must be overridden by the user.
+# Default values for AppSet. Some of which must be overridden.
 applicationProject: change-me
+appProjectSpec: null # If set, an AppProject will be created using this spec.
+clusterURL: https://kubernetes.default.svc
 name: change-me
 namespace: change-me
 path: Apps
 repoURL: change-me
 revision: main
+managedNamespaceMetadata: null
