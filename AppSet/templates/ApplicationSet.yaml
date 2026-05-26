@@ -31,7 +31,6 @@ spec:
           repoURL: {{ .Values.repoURL }}
           targetRevision: {{ .Values.revision }}
           namespace: {{ .Values.namespace }}
-          managedNamespaceMetadata: {{ .Values.managedNamespaceMetadata }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:
@@ -59,9 +58,10 @@ spec:
           prune: true
           selfHeal: true
           allowEmpty: true
-          {{`{{- if .values.managedNamespaceMetadata }}`}}
-          managedNamespaceMetadata: {{`{{ .values.managedNamespaceMetadata | toJson }}`}}
-          {{`{{- end }}`}}
+        {{- with .Values.managedNamespaceMetadata }}
+        managedNamespaceMetadata:
+{{- toYaml . | nindent 10 }}
+        {{- end }}
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
