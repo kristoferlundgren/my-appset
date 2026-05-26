@@ -2,6 +2,7 @@
 applicationProject: change-me
 appProjectSpec: null # If set, an AppProject will be created using this spec.
 clusterURL: https://kubernetes.default.svc
+createNamespace: true
 name: change-me
 namespace: change-me
 path: Apps

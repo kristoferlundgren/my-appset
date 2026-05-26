@@ -63,7 +63,7 @@ spec:
 {{- toYaml . | nindent 10 }}
         {{- end }}
         syncOptions:
-          - CreateNamespace=true
+          - CreateNamespace={{ .Values.createNamespace}}
           - ServerSideApply=true
       destination:
         namespace: '{{`{{.path.basenameNormalized}}`}}'
