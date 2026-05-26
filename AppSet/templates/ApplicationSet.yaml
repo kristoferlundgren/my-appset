@@ -21,7 +21,7 @@ spec:
           # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git-File-Globbing/#enabling-the-new-globbing
           - path: {{ .Values.path }}/**/app.yaml # Deploy all apps
           - path: {{ .Values.path }}/**/*.app.yaml # Support multiple app.yaml files per app.
-          - path: {{ .Values.path }}/**/*template*/* # Exclude template directories
+          - path: {{ .Values.path }}/**/*template*/ # Exclude template directories
             exclude: true
 
         # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/#pass-additional-key-value-pairs-via-values-field
