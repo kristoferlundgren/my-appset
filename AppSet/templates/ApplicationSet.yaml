@@ -64,6 +64,7 @@ spec:
         {{- end }}
         syncOptions:
           - CreateNamespace={{ .Values.createNamespace}}
+          - RespectIgnoreDifferences=true
           - ServerSideApply=true
       destination:
         namespace: '{{`{{.path.basenameNormalized}}`}}'
