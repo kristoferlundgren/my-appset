@@ -138,28 +138,23 @@ spec:
       syncPolicy:
         # automated
         {{`{{- if hasKey .spec.syncPolicy "automated" }}`}}
-        automated: '{{`{{ .spec.syncPolicy.automated | quote }}`}}'
+        automated: {{`{{ .spec.syncPolicy.automated | toJson }}`}}
         {{`{{- end }}`}}
 
         # syncOptions
         {{`{{- if hasKey .spec.syncPolicy "syncOptions" }}`}}
-        syncOptions: '{{`{{ .spec.syncPolicy.syncOptions | quote }}`}}'
+        syncOptions: {{`{{ .spec.syncPolicy.syncOptions | toJson }}`}}
         {{`{{- end }}`}}
 
         # managedNamespaceMetadata
         {{`{{- if hasKey .spec.syncPolicy "managedNamespaceMetadata" }}`}}
-        managedNamespaceMetadata: '{{`{{ .spec.syncPolicy.managedNamespaceMetadata | quote }}`}}'
+        managedNamespaceMetadata: {{`{{ .spec.syncPolicy.managedNamespaceMetadata | toJson }}`}}
         {{`{{- end }}`}}
 
         # retry
         {{`{{- if hasKey .spec.syncPolicy "retry" }}`}}
-        retry: '{{`{{ .spec.syncPolicy.retry | quote }}`}}'
+        retry: {{`{{ .spec.syncPolicy.retry | toJson }}`}}
         {{`{{- end }}`}}
-      {{`{{- end }}`}}
-
-      # syncPolicy
-      {{`{{- if hasKey .spec "syncPolicy" }}`}}
-      syncPolicy: '{{`{{ .spec.syncPolicy | quote }}`}}'
       {{`{{- end }}`}}
 
       # ignoreDifferences
