@@ -77,7 +77,7 @@ spec:
           path: '{{`{{.path.path}}`}}'
           helm:
             releaseName: '{{`{{.path.basenameNormalized}}`}}'
-            valuesFiles:
+            valueFiles:
               - $values/{{`{{.path.path}}`}}/values.yaml
             ignoreMissingValueFiles: true
         # https://argo-cd.readthedocs.io/en/stable/user-guide/multiple_sources/
@@ -109,14 +109,26 @@ spec:
 
     {{`{{- if hasKey . "spec" }}`}}
     spec:
-      # Render source as one object so nested config such as helm.valuesObject stays structured.
+      # Render source as sources[0] so nested config such as helm.valuesObject stays structured
+      # while preserving the generated $values source for adjacent values.yaml files.
       {{`{{- if and (hasKey .spec "source") (kindIs "map" .spec.source) }}`}}
       # Helm chart sources must not keep the default Git path from the base template.
       {{`{{- if hasKey .spec.source "chart" }}`}}
       {{`{{- $_ := set .spec.source "path" nil }}`}}
       {{`{{- end }}`}}
-      source: {{`{{ .spec.source | toJson }}`}}
-      sources: null
+      {{`{{- if not (hasKey .spec.source "helm") }}`}}
+      {{`{{- $_ := set .spec.source "helm" dict }}`}}
+      {{`{{- end }}`}}
+      {{`{{- if kindIs "map" .spec.source.helm }}`}}
+      {{`{{- $_ := set .spec.source.helm "valueFiles" (list (printf "$values/%s/values.yaml" .path.path)) }}`}}
+      {{`{{- $_ := set .spec.source.helm "ignoreMissingValueFiles" true }}`}}
+      {{`{{- end }}`}}
+      source: null
+      sources:
+        - {{`{{ .spec.source | toJson }}`}}
+        - repoURL: '{{`{{.values.repoURL}}`}}'
+          targetRevision: '{{`{{.values.targetRevision}}`}}'
+          ref: values
       {{`{{- end }}`}}
 
       # sources
