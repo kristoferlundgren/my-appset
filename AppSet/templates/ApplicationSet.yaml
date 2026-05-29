@@ -109,23 +109,18 @@ spec:
 
     {{`{{- if hasKey . "spec" }}`}}
     spec:
-      # Render source as sources[0] so nested config such as helm.valuesObject stays structured
+      # Merge app source into the default source, then render it as sources[0]
       # while preserving the generated $values source for adjacent values.yaml files.
       {{`{{- if and (hasKey .spec "source") (kindIs "map" .spec.source) }}`}}
+      {{`{{- $defaultSource := dict "repoURL" .values.repoURL "targetRevision" .values.targetRevision "path" .path.path "helm" (dict "releaseName" .path.basenameNormalized "valueFiles" (list (printf "$values/%s/values.yaml" .path.path)) "ignoreMissingValueFiles" true) }}`}}
+      {{`{{- $source := mergeOverwrite $defaultSource .spec.source }}`}}
       # Helm chart sources must not keep the default Git path from the base template.
-      {{`{{- if hasKey .spec.source "chart" }}`}}
-      {{`{{- $_ := set .spec.source "path" nil }}`}}
-      {{`{{- end }}`}}
-      {{`{{- if not (hasKey .spec.source "helm") }}`}}
-      {{`{{- $_ := set .spec.source "helm" dict }}`}}
-      {{`{{- end }}`}}
-      {{`{{- if kindIs "map" .spec.source.helm }}`}}
-      {{`{{- $_ := set .spec.source.helm "valueFiles" (list (printf "$values/%s/values.yaml" .path.path)) }}`}}
-      {{`{{- $_ := set .spec.source.helm "ignoreMissingValueFiles" true }}`}}
+      {{`{{- if hasKey $source "chart" }}`}}
+      {{`{{- $_ := unset $source "path" }}`}}
       {{`{{- end }}`}}
       source: null
       sources:
-        - {{`{{ .spec.source | toJson }}`}}
+        - {{`{{ $source | toJson }}`}}
         - repoURL: '{{`{{.values.repoURL}}`}}'
           targetRevision: '{{`{{.values.targetRevision}}`}}'
           ref: values
