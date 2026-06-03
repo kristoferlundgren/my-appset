@@ -109,28 +109,40 @@ spec:
 
     {{`{{- if hasKey . "spec" }}`}}
     spec:
-      # Merge app source into the default source, then render it as sources[0]
-      # while preserving the generated $values source for adjacent values.yaml files.
-      {{`{{- if and (hasKey .spec "source") (kindIs "map" .spec.source) }}`}}
+      # Build the final sources list from spec.source and/or spec.sources.
+      # Preserve the generated $values source unless the app already defines
+      # ref: values explicitly.
       {{`{{- $defaultSource := dict "repoURL" .values.repoURL "targetRevision" .values.targetRevision "path" .path.path "helm" (dict "releaseName" .path.basenameNormalized "valueFiles" (list (printf "$values/%s/values.yaml" .path.path)) "ignoreMissingValueFiles" true) }}`}}
-      {{`{{- $source := mergeOverwrite $defaultSource .spec.source }}`}}
+      {{`{{- $valuesSource := dict "repoURL" .values.repoURL "targetRevision" .values.targetRevision "ref" "values" }}`}}
+      {{`{{- $sources := list }}`}}
+      {{`{{- $hasValuesRef := false }}`}}
+      {{`{{- if and (hasKey .spec "source") (kindIs "map" .spec.source) }}`}}
+      {{`{{- $primarySource := mergeOverwrite $defaultSource .spec.source }}`}}
       # Helm chart sources must not keep the default Git path from the base template.
-      {{`{{- if hasKey $source "chart" }}`}}
-      {{`{{- $_ := unset $source "path" }}`}}
+      {{`{{- if hasKey $primarySource "chart" }}`}}
+      {{`{{- $_ := unset $primarySource "path" }}`}}
       {{`{{- end }}`}}
-      source: null
-      sources:
-        - {{`{{ $source | toJson }}`}}
-        - repoURL: '{{`{{.values.repoURL}}`}}'
-          targetRevision: '{{`{{.values.targetRevision}}`}}'
-          ref: values
+      {{`{{- $sources = append $sources $primarySource }}`}}
       {{`{{- end }}`}}
 
-      # sources
-      # Multi-source apps are required for $values/... Helm value files from a Git repo.
       {{`{{- if hasKey .spec "sources" }}`}}
+      {{`{{- range .spec.sources }}`}}
+      {{`{{- if eq (default "" .ref) "values" }}`}}
+      {{`{{- $hasValuesRef = true }}`}}
+      {{`{{- end }}`}}
+      {{`{{- $sources = append $sources . }}`}}
+      {{`{{- end }}`}}
+      {{`{{- end }}`}}
+
+      {{`{{- if gt (len $sources) 0 }}`}}
       source: null
-      sources: {{`{{ .spec.sources | toJson }}`}}
+      sources:
+        {{`{{- range $sources }}`}}
+        - {{`{{ . | toJson }}`}}
+        {{`{{- end }}`}}
+        {{`{{- if not $hasValuesRef }}`}}
+        - {{`{{ $valuesSource | toJson }}`}}
+        {{`{{- end }}`}}
       {{`{{- end }}`}}
 
       {{`{{- if hasKey .spec "destination" }}`}}
