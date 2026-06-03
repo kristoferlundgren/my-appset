@@ -127,7 +127,7 @@ spec:
 
       {{`{{- if hasKey .spec "sources" }}`}}
       {{`{{- range .spec.sources }}`}}
-      {{`{{- if eq (default "" .ref) "values" }}`}}
+      {{`{{- if eq (get . "ref") "values" }}`}}
       {{`{{- $hasValuesRef = true }}`}}
       {{`{{- end }}`}}
       {{`{{- $sources = append $sources . }}`}}
