@@ -16,15 +16,20 @@ spec:
         repoURL: {{ tpl .Values.repoURL . }}
         revision: {{ tpl .Values.revision . }}
         requeueAfterSeconds: 60 # Pull repo every x seconds
+{{- $hasEnabledApps := hasKey .Values "enabledApps" }}
+{{- $enabledApps := .Values.enabledApps | default list }}
+{{- $disabledApps := .Values.disabledApps | default list }}
         files:
-          # NOTE: Do enable ArgoCD improved globbing
-          # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git-File-Globbing/#enabling-the-new-globbing
+{{- if and $hasEnabledApps (eq (len $enabledApps) 0) }}
+          []
+{{- else }}
           - path: {{ tpl .Values.path . }}/**/app.yaml # Deploy all apps
           - path: {{ tpl .Values.path . }}/**/*.app.yaml # Support multiple app.yaml files per app.
           - path: {{ tpl .Values.path . }}/**/_*.yaml # Exclude files starting with "_"
             exclude: true
           - path: {{ tpl .Values.path . }}/**/*template*/*app.yaml # Exclude template directories
             exclude: true
+{{- end }}
 
         # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/#pass-additional-key-value-pairs-via-values-field
         values:
@@ -34,6 +39,26 @@ spec:
           targetRevision: {{ tpl .Values.revision . }}
           namespace: {{ tpl .Values.namespace . }}
           appsValuesObjects: {{ tpl (toYaml (.Values.appsValuesObjects | default dict)) . | fromYaml | toJson | quote }}
+{{ if or (and $hasEnabledApps (gt (len $enabledApps) 0)) (gt (len $disabledApps) 0) }}
+      selector:
+        matchExpressions:
+{{ if and $hasEnabledApps (gt (len $enabledApps) 0) }}
+          - key: path.basename
+            operator: In
+            values:
+{{ range $app := $enabledApps }}
+              - {{ $app | quote }}
+{{ end }}
+{{ end }}
+{{ if gt (len $disabledApps) 0 }}
+          - key: path.basename
+            operator: NotIn
+            values:
+{{ range $app := $disabledApps }}
+              - {{ $app | quote }}
+{{ end }}
+{{ end }}
+{{ end }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:

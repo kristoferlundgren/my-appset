@@ -10,6 +10,12 @@ repoURL: change-me
 revision: main
 managedNamespaceMetadata: null
 
+enabledApps:
+  - headlamp
+
+disabledApps:
+  - zitadel
+
 appsValuesObjects:
   headlamp:
     # Test/mockup configuration for headlamp
