@@ -11,7 +11,7 @@ revision: main
 managedNamespaceMetadata: null
 
 enabledApps:
-  - appset
+  - AppSet
   - headlamp
 
 disabledApps:
