@@ -5,34 +5,35 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/
 metadata:
-  namespace: {{ .Values.namespace }}
-  name: appset.{{ .Values.name }}
+  namespace: {{ tpl .Values.namespace . }}
+  name: appset.{{ tpl .Values.name . }}
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
   generators:
-    # https://argo-cd.readthedocs.io/en/latest/operator-manual/applicationset/Generators-Git/
+    # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/
     - git:
-        repoURL: {{ .Values.repoURL }}
-        revision: {{ .Values.revision }}
+        repoURL: {{ tpl .Values.repoURL . }}
+        revision: {{ tpl .Values.revision . }}
         requeueAfterSeconds: 60 # Pull repo every x seconds
         files:
           # NOTE: Do enable ArgoCD improved globbing
           # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git-File-Globbing/#enabling-the-new-globbing
-          - path: {{ .Values.path }}/**/app.yaml # Deploy all apps
-          - path: {{ .Values.path }}/**/*.app.yaml # Support multiple app.yaml files per app.
-          - path: {{ .Values.path }}/**/_*.yaml # Exclude files starting with "_"
+          - path: {{ tpl .Values.path . }}/**/app.yaml # Deploy all apps
+          - path: {{ tpl .Values.path . }}/**/*.app.yaml # Support multiple app.yaml files per app.
+          - path: {{ tpl .Values.path . }}/**/_*.yaml # Exclude files starting with "_"
             exclude: true
-          - path: {{ .Values.path }}/**/*template*/*app.yaml # Exclude template directories
+          - path: {{ tpl .Values.path . }}/**/*template*/*app.yaml # Exclude template directories
             exclude: true
 
         # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Generators-Git/#pass-additional-key-value-pairs-via-values-field
         values:
-          applicationProject: {{ .Values.applicationProject }}
-          clusterURL: {{ .Values.clusterURL }}
-          repoURL: {{ .Values.repoURL }}
-          targetRevision: {{ .Values.revision }}
-          namespace: {{ .Values.namespace }}
+          applicationProject: {{ tpl .Values.applicationProject . }}
+          clusterURL: {{ tpl .Values.clusterURL . }}
+          repoURL: {{ tpl .Values.repoURL . }}
+          targetRevision: {{ tpl .Values.revision . }}
+          namespace: {{ tpl .Values.namespace . }}
+          apps: {{ .Values.apps | toJson | quote }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:
@@ -62,10 +63,10 @@ spec:
           allowEmpty: true
         {{- with .Values.managedNamespaceMetadata }}
         managedNamespaceMetadata:
-{{- toYaml . | nindent 10 }}
+{{- tpl (toYaml .) $ | nindent 10 }}
         {{- end }}
         syncOptions:
-          - CreateNamespace={{ .Values.createNamespace}}
+          - CreateNamespace={{ tpl (.Values.createNamespace | toString) . }}
           - RespectIgnoreDifferences=true
           - ServerSideApply=true
       destination:
@@ -138,7 +139,15 @@ spec:
       source: null
       sources:
         {{`{{- range $sources }}`}}
+        {{`{{- $apps := fromJson $.values.apps }}`}}
+        {{`{{- if and (hasKey $.path "basenameNormalized") (hasKey $apps $.path.basenameNormalized) (eq (get . "ref") "") (hasKey . "helm") }}`}}
+        {{`{{- $helm := deepCopy .helm }}`}}
+        {{`{{- $existing := default dict $helm.valuesObject }}`}}
+        {{`{{- $_ := set $helm "valuesObject" (mergeOverwrite $existing (index $apps $.path.basenameNormalized)) }}`}}
+        - {{`{{ mergeOverwrite . (dict "helm" $helm) | toJson }}`}}
+        {{`{{- else }}`}}
         - {{`{{ . | toJson }}`}}
+        {{`{{- end }}`}}
         {{`{{- end }}`}}
         {{`{{- if not $hasValuesRef }}`}}
         - {{`{{ $valuesSource | toJson }}`}}

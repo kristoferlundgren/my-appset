@@ -9,3 +9,10 @@ path: Apps
 repoURL: change-me
 revision: main
 managedNamespaceMetadata: null
+
+apps:
+  headlamp:
+    # Test/mockup configuration for headlamp
+    tests:
+      test-a: change-me
+      test-b: change-me
