@@ -142,7 +142,7 @@ spec:
         {{`{{- $apps := fromJson $.values.apps }}`}}
         {{`{{- if and (hasKey $.path "basenameNormalized") (hasKey $apps $.path.basenameNormalized) (eq (get . "ref") "") (hasKey . "helm") }}`}}
         {{`{{- $helm := deepCopy .helm }}`}}
-        {{`{{- $existing := default dict $helm.valuesObject }}`}}
+        {{`{{- $existing := default dict (get $helm "valuesObject") }}`}}
         {{`{{- $_ := set $helm "valuesObject" (mergeOverwrite $existing (index $apps $.path.basenameNormalized)) }}`}}
         - {{`{{ mergeOverwrite . (dict "helm" $helm) | toJson }}`}}
         {{`{{- else }}`}}
