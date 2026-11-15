@@ -33,7 +33,7 @@ spec:
           repoURL: {{ tpl .Values.repoURL . }}
           targetRevision: {{ tpl .Values.revision . }}
           namespace: {{ tpl .Values.namespace . }}
-          apps: {{ .Values.apps | toJson | quote }}
+          apps: {{ tpl (toYaml (.Values.apps | default dict)) . | fromYaml | toJson | quote }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:
