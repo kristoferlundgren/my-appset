@@ -10,7 +10,7 @@ repoURL: change-me
 revision: main
 managedNamespaceMetadata: null
 
-apps:
+appsValuesObjects:
   headlamp:
     # Test/mockup configuration for headlamp
     tests:

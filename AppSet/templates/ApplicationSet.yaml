@@ -33,7 +33,7 @@ spec:
           repoURL: {{ tpl .Values.repoURL . }}
           targetRevision: {{ tpl .Values.revision . }}
           namespace: {{ tpl .Values.namespace . }}
-          apps: {{ tpl (toYaml (.Values.apps | default dict)) . | fromYaml | toJson | quote }}
+          appsValuesObjects: {{ tpl (toYaml (.Values.appsValuesObjects | default dict)) . | fromYaml | toJson | quote }}
   ignoreApplicationDifferences:
     # https://argo-cd.readthedocs.io/en/stable/operator-manual/applicationset/Controlling-Resource-Modification/#allow-temporarily-toggling-auto-sync
     - jsonPointers:
@@ -139,7 +139,7 @@ spec:
       source: null
       sources:
         {{`{{- range $sources }}`}}
-        {{`{{- $apps := fromJson $.values.apps }}`}}
+        {{`{{- $apps := fromJson $.values.appsValuesObjects }}`}}
         {{`{{- if and (hasKey $.path "basenameNormalized") (hasKey $apps $.path.basenameNormalized) (eq (get . "ref") "") (hasKey . "helm") }}`}}
         {{`{{- $helm := deepCopy .helm }}`}}
         {{`{{- $existing := default dict (get $helm "valuesObject") }}`}}
