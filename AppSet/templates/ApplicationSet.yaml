@@ -74,7 +74,7 @@ spec:
         argocd.argoproj.io/sync-wave: "0"
         basenameNormalized: '{{`{{.path.basenameNormalized}}`}}'
         basename: '{{`{{.path.basename}}`}}'
-        name: '{{`{{ trimPrefix "/" (trimPrefix .values.pathPrefix .path.path) }}`}}'
+        path: '{{`{{ trimPrefix "/" (trimPrefix .values.pathPrefix .path.path) }}`}}'
       finalizers:
         # https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer
         - resources-finalizer.argocd.argoproj.io
