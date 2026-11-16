@@ -38,6 +38,7 @@ spec:
           repoURL: {{ tpl .Values.repoURL . }}
           targetRevision: {{ tpl .Values.revision . }}
           namespace: {{ tpl .Values.namespace . }}
+          pathPrefix: {{ tpl .Values.path . | trimSuffix "/" | quote }}
           appsValuesObjects: {{ tpl (toYaml (.Values.appsValuesObjects | default dict)) . | fromYaml | toJson | quote }}
 {{ if or (and $hasEnabledApps (gt (len $enabledApps) 0)) (gt (len $disabledApps) 0) }}
       selector:
@@ -73,6 +74,7 @@ spec:
         argocd.argoproj.io/sync-wave: "0"
         basenameNormalized: '{{`{{.path.basenameNormalized}}`}}'
         basename: '{{`{{.path.basename}}`}}'
+        name: '{{`{{ trimPrefix "/" (trimPrefix .values.pathPrefix .path.path) }}`}}'
       finalizers:
         # https://argo-cd.readthedocs.io/en/latest/user-guide/app_deletion/#about-the-deletion-finalizer
         - resources-finalizer.argocd.argoproj.io
